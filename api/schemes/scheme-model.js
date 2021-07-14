@@ -1,4 +1,5 @@
-function find() { // EXERCISE A
+const db = require('../../data/db-config')
+async function find() { // EXERCISE A
   /*
     1A- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`.
     What happens if we change from a LEFT join to an INNER join?
@@ -15,10 +16,17 @@ function find() { // EXERCISE A
     2A- When you have a grasp on the query go ahead and build it in Knex.
     Return from this function the resulting dataset.
   */
-  
+
+    const data = await db("schemes as sc")
+    .leftJoin("steps as st","sc.scheme_id","=","st.scheme_id")
+     .select ("sc.*")
+     .count("st.step_id as number_of_steps")
+     .groupBy("sc.scheme_id")
+     .orderBy("sc.scheme_id", "asc")
+    return data;
 }
 
-function findById(scheme_id) { // EXERCISE B
+async function findById(scheme_id) { // EXERCISE B
   /*
     1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
 
@@ -33,7 +41,16 @@ function findById(scheme_id) { // EXERCISE B
 
     2B- When you have a grasp on the query go ahead and build it in Knex
     making it parametric: instead of a literal `1` you should use `scheme_id`.
-
+*/
+  const data = await db("schemes as sc")
+  .leftJoin("steps as st","sc.scheme_id" ,"=","st.scheme_id")
+  .select("sc.scheme_name","st.*")
+   .where( "sc.scheme_id", `${scheme_id}` )
+  //.where( "sc.scheme_id", 1 )
+  .orderBy("st.step_number", "asc")
+  console.log("schemes/id",data);
+  return data;
+/*
     3B- Test in Postman and see that the resulting data does not look like a scheme,
     but more like an array of steps each including scheme information:
 
@@ -75,7 +92,9 @@ function findById(scheme_id) { // EXERCISE B
           // etc
         ]
       }
-
+*/
+      // const styledResults =
+/*
     5B- This is what the result should look like _if there are no steps_ for a `scheme_id`:
 
       {

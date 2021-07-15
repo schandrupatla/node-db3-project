@@ -44,12 +44,26 @@ async function findById(scheme_id) { // EXERCISE B
 */
   const data = await db("schemes as sc")
   .leftJoin("steps as st","sc.scheme_id" ,"=","st.scheme_id")
-  .select("sc.scheme_name","st.*")
-   .where( "sc.scheme_id", `${scheme_id}` )
-  //.where( "sc.scheme_id", 1 )
+  .where( "sc.scheme_id", scheme_id )
+  .select("st.*","sc.scheme_name","st.scheme_id")
   .orderBy("st.step_number", "asc")
-  console.log("schemes/id",data);
-  return data;
+  // return data;
+  const results = {
+    scheme_id:data[0].scheme_id,
+    scheme_name: data[0].scheme_name,
+    steps:[]
+  }
+  
+  data.forEach(row=>{
+    if(row.step_id){
+      results.steps.push({
+        step_id:row.step_id,
+        step_number:row.step_number,
+        instructions:row.instructions,
+      })
+    }
+  })
+  return results;
 /*
     3B- Test in Postman and see that the resulting data does not look like a scheme,
     but more like an array of steps each including scheme information:
@@ -92,9 +106,7 @@ async function findById(scheme_id) { // EXERCISE B
           // etc
         ]
       }
-*/
-      // const styledResults =
-/*
+
     5B- This is what the result should look like _if there are no steps_ for a `scheme_id`:
 
       {
